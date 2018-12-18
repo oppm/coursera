@@ -17,9 +17,6 @@ def get_value(A, n):
 def get_op(A, n):
     return A[1+n*2]
 
-def verify(x, y, m):
-    pass
-
 def get_maximum_value(A):
     
     num_values = (len(A)+1)//2
@@ -54,17 +51,78 @@ def get_maximum_value(A):
 
             m[x][y] = max_
             m[y][x] = min_
-            verify(x, y, max_)
-            verify(y, x, min_)
             pass
     
     return m[0][num_values-1]
 
+def calc(A, base):
+    num_values = (len(A)+1) // 2
+    num_ops = (len(A)-1) // 2
+
+    if num_values == 1:
+        return [int(A[0]), int(A[0])]
+
+    for o in range(num_ops):
+
+        left_side = A[:1+2*o]
+        right_side = A[2+2*o:]
+        op = A[1+2*o]
+
+        [min_left, max_left] = calc_cached(left_side, base, 0)
+        [min_right, max_right] = calc_cached(right_side, base+o+1, 0)
+
+        a = evalt(max_left, max_right, op)
+        b = evalt(max_left, min_right, op)
+        c = evalt(min_left, max_right, op)
+        d = evalt(min_left, min_right, op)
+
+        if o == 0:
+            max_ = max([a, b, c, d])
+            min_ = min([a, b, c, d])
+        else:
+            max_ = max([max_, a, b, c, d])
+            min_ = min([min_, a, b, c, d])
+
+    return [min_, max_]
+
+def calc_cached(A, base=0, reset=1):
+
+    global cache_valid
+    global cache_value
+
+    num_values = (len(A)+1) // 2
+
+    if reset == 1:
+        cache_valid = [[0] * num_values for _ in range(num_values)]
+        cache_value = [[0] * num_values for _ in range(num_values)]
+
+    x = base
+    y = base + num_values - 1
+
+    if cache_valid[x][y] > 0:
+        return [cache_value[y][x], cache_value[x][y]]
+
+    [min_, max_] = calc(A, base)
+
+    cache_valid[x][y] = 1
+    cache_valid[y][x] = 1
+    cache_value[x][y] = max_
+    cache_value[y][x] = min_    
+
+    return [min_, max_]
+
+def get_maximum_value_top_down(A):
+    [min_, max_] = calc_cached(A)
+    return max_
+
 def test(A, res):
-    r = get_maximum_value(A)
+    r = get_maximum_value_top_down(A)
     print("passed" if r == res else "failed ({0})".format(r))
 
 def unit_test():
+    test("1+2+3+4+5+6", 21)
+    test("1+2+3+4+5", 15)
+    test("1+2+3+4", 10)
     test("1+5", 6)
     test("1-1-1-1", 2)
     test("3*4*5", 60)
