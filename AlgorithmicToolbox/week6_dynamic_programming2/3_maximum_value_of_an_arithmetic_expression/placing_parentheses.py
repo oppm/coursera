@@ -1,4 +1,6 @@
 # Uses python3
+import sys
+
 def evalt(a, b, op):
     if op == '+':
         return a + b
@@ -9,10 +11,69 @@ def evalt(a, b, op):
     else:
         assert False
 
-def get_maximum_value(dataset):
-    #write your code here
-    return 0
+def get_value(A, n):
+    return int(A[n*2])
 
+def get_op(A, n):
+    return A[1+n*2]
+
+def verify(x, y, m):
+    pass
+
+def get_maximum_value(A):
+    
+    num_values = (len(A)+1)//2
+    num_ops = (len(A)-1)//2
+
+    m = [[0] * num_values for _ in range(num_values)]
+
+    for i in range(num_values):
+        m[i][i] = get_value(A, i)
+
+    for i in range(1, num_ops+1):
+        for j in range(i, num_ops+1):
+            x = j - i
+            y = j
+
+            for k in range(x, y):
+                op = get_op(A, k)
+                max_left_value = m[x][k]
+                max_right_value = m[k+1][y]
+                min_left_value = m[k][x]
+                min_right_value = m[y][k+1]
+                a = evalt(max_left_value, max_right_value, op)
+                b = evalt(max_left_value, min_right_value, op)
+                c = evalt(min_left_value, max_right_value, op)
+                d = evalt(min_left_value, min_right_value, op)
+                if k == x:
+                    max_ = max([a, b, c, d])
+                    min_ = min([a, b, c, d])
+                else:
+                    max_ = max([max_, a, b, c, d])
+                    min_ = min([min_, a, b, c, d])
+
+            m[x][y] = max_
+            m[y][x] = min_
+            verify(x, y, max_)
+            verify(y, x, min_)
+            pass
+    
+    return m[0][num_values-1]
+
+def test(A, res):
+    r = get_maximum_value(A)
+    print("passed" if r == res else "failed ({0})".format(r))
+
+def unit_test():
+    test("1+5", 6)
+    test("1-1-1-1", 2)
+    test("3*4*5", 60)
+    test("5*4+2", 30)
+    test("8-8*5-6", 16)
+    test("5-8+7*4-8+9", 200)
 
 if __name__ == "__main__":
-    print(get_maximum_value(input()))
+    if len(sys.argv) > 1:
+        unit_test()
+    else:      
+        print(get_maximum_value(input()))
