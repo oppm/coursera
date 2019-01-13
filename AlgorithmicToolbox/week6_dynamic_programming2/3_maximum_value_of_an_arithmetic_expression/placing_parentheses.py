@@ -33,8 +33,8 @@ def get_maximum_value(dataset):
         m[x][y] = e
         m[y][x] = e
 
-    for o in range(2, n_ops+1):
-        for i in range(n_values-o):
+    for o in range(2, n_values):
+        for i in range(n_values-o):            
             x = i
             y = i+o
             left_val = m[x][y-o]
