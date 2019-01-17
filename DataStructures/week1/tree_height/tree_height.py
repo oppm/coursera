@@ -4,18 +4,31 @@ import sys
 import threading
 
 
-def compute_height(n, parents):
-    # Replace this code with a faster implementation
-    max_height = 0
-    for vertex in range(n):
-        height = 0
-        current = vertex
-        while current != -1:
-            height += 1
-            current = parents[current]
-        max_height = max(max_height, height)
-    return max_height
+def get_depth(self, node):
+    if self.depth[node] > 0:
+        return self.depth[node]
+            
+    parent = self.parent[node]
+    depth = 1
+    if parent != -1:
+        depth = 1 + self.get_depth(parent)
+    self.depth[node] = depth
+    return depth
 
+def compute_height(self, n, parents):
+    # Replace this code with a faster implementation
+    maxHeight = 0
+    for node in range(self.n):
+        depth = self.get_depth(node)
+        maxHeight = max(maxHeight, depth)
+    return maxHeight
+
+def test(n, s, o):
+    parents = list(map(int, s.split()))
+    print("passed" if tree.compute_height(n, parents) == o else "failed" )
+
+def unit_test():
+        test(5, "4 -1 4 1 1", 3)   
 
 def main():
     n = int(input())
