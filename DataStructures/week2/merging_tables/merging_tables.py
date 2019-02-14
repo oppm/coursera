@@ -3,10 +3,15 @@
 import sys
 
 def getParent(parent, i):
-    # find parent and compress path
-    return parent[i]
+    
+    j = parent[i]
+    if i != j:
+        j = getParent(parent, j)
+        parent[i] = j
 
-def merge(parent, destination, source):
+    return j
+
+def merge(parent, destination, source, n_rows):
     realDestination, realSource = getParent(parent, destination), getParent(parent, source)
 
     if realDestination == realSource:
@@ -15,6 +20,10 @@ def merge(parent, destination, source):
     # merge two components
     # use union by rank heuristic 
     # update ans with the new maximum table size
+
+    parent[source] = destination
+    n_rows[source] += n_rows[destination]
+    n_rows[destination] = 0
 
     return True
 
@@ -25,7 +34,7 @@ def calc(n, merge_queries, n_rows):
 
     for i in range(m):
         [destination, source] = merge_queries[i]
-        merge(parent, destination - 1, source - 1)
+        merge(parent, destination - 1, source - 1, n_rows)
         outp.append(max(n_rows))
 
     return outp
@@ -56,10 +65,10 @@ def main():
         destination, source = map(int, sys.stdin.readline().split())
         merge_queries.append([destination, source])
 
-    ans = calc(merge_queries, n_rows)
+    ans = calc(n, merge_queries, n_rows)
     
     for i in range(m):
-        print(ans)
+        print(ans[i])
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
